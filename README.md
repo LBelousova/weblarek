@@ -98,3 +98,93 @@ Presenter - презентер содержит основную логику п
 `emit<T extends object>(event: string, data?: T): void` - инициализация события. При вызове события в метод передается название события и объект с данными, который будет использован как аргумент для вызова обработчика.  
 `trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие с передачей в него данных из второго параметра.
 
+### Данные
+
+#### Интерфейс IProduct
+Описывает структуру данных товара, получаемых с сервера и используемых для отображения в карточке товара.
+
+Поля интерфейса:
+  `id: string` - уникальный идентификатор товара;
+  `description: string` - подробное описание товара;
+  `image: string` - ссылка на изображение товара;
+  `title: string` - наименование товара;
+  `category: string` - категория товара;
+  `price: number | null` - стоимость товара (может отсутствовать).
+
+#### Интерфейс IBuyer
+Описывает данные покупателя.
+
+Поля интерфейса:
+  `payment: TPayment` - способ оплаты; тип `TPayment` поддерживает два значения: оплата наличными или банковской картой;
+  `email: string` - адрес электронной почты покупателя;
+  `phone: string` - контактный номер телефона;
+  `address: string` - адрес доставки;
+
+### Модели данных
+
+#### Класс Catalogue
+Модель каталога товаров.
+
+`constructor(protected itemsList: IProduct[])` - Конструктор принимает массив товаров, соответствующих интерфейсу `IProduct`
+
+Поля класса: 
+  `protected itemsList: IProduct[]` - хранит массив всех доступных товаров;
+  `protected item: IProduct` - хранит товар, выбранный для подробного отображения;
+
+Методы класса:
+  `get products(): IProduct[]` - возвращает список товаров каталога;
+  `set products (prods: IProduct[])` - сохраняет массив товаров, полученный с сервера;
+  `getProductById(id: number) : IProduct` - возвращает товар по его идентификатору;
+  `set product (prod: IProduct)` - устанавливает товар для подробного отображения;
+  `get product(): IProduct` - возвращает товар, выбранный для подробного отображения.
+
+#### Класс Cart
+Модель корзины покупателя.
+
+`constructor(protected cartList: IProduct[])` - Конструктор массив товаров, добавленных в корзину. 
+
+Поля класса:
+`protected cartList: IProduct[]` - хранит массив товаров, выбранных покупателем для покупки.
+
+Методы класса:
+`get itemsInCart(): IProduct[]` - возвращает список товаров в корзине;
+`addItemInCart(item: IProduct)` - добавляет товар в корзину;
+`removeItemFromCart(item: IProduct)` - удаляет товар из корзины;
+`clearCart() : void` - очищает корзину;
+`getTotalPrice(): number` - вычисляет общую стоимость товаров в корзине;
+`get amountOfItemsInCart(): number` - возвращает количество товаров в корзине;
+`checkById(itemId: number): boolean | string` - проверяет наличие товара в корзине по идентификатору.
+
+#### Класс Buyer
+Модель данных покупателя.
+
+Поля класса:
+`payment: TPayment` - способ оплаты;
+`address: string` - адрес доставки;
+`phone: string` - контактный номер телефона;
+`email: string` - адрес электронной почты.
+
+`constructor({payment, email, phone, address}: IBuyer))`
+ - Конструктор принимает данные покупателя, соответствующие интерфейсу IBuyer
+
+методы класса:
+`set paymentMethod(method: TPayment)` - устанавливает способ оплаты,
+`set emailInfo(email: string)` - сохраняет адрес электронной почты,
+`set phoneInfo(phone: string)` - сохраняет номер телефона,
+`set addressInfo(address: string)`- сохраняет адрес доставки,
+`get buyerInfo(): IBuyer` - возвращает объект с полными данными покупателя,
+`clearBuyerInfo(): void` - очищает данные покупателя;
+`isValid(): Record<string, string>` - выполняет валидацию данных покупателя и возвращает объект с ошибками. 
+
+### Слой коммуникации
+
+#### Класс ServerRequests 
+
+Отвечает за взаимодействие с сервером и выполнение HTTP-запросов.
+
+`constructor(protected api : IApi)` - конструктор принимает объект, реализующий интерфейс IApi
+
+Методы класса:
+`getProducts(): Promise<TProductRequest>` - выполняет get запрос на эндпоинт /product/ и возвращает массив товаров соответствуюший типу `TProductRequest`
+
+`createOrder(order: TOrderRequest): Promise<TOrderRequest>` - выполняет post запрос на эндпоинт /order/, передавая данные заказа, соответствуюшие типу `TOrderRequest`
