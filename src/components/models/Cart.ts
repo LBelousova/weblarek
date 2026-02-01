@@ -1,8 +1,10 @@
-import { IProduct } from '../../../types/index.ts';
+import { IProduct } from '../../types/index.ts';
 
 export class Cart {
-    constructor(protected cartList: IProduct[]) {
-        this.cartList = cartList;
+    private cartList: IProduct[];
+
+    constructor() {
+        this.cartList = [];
   }
 
     get itemsInCart(): IProduct[] {
@@ -22,11 +24,8 @@ export class Cart {
     }
 
     getTotalPrice(): number {
-        let totalPrice: number | null = 0;
-        for (const item of this.cartList) {
-            totalPrice += item.price || 0;
-        }
-        return totalPrice;
+        return this.cartList.reduce(
+            (total, item) => total + (item.price || 0), 0);
     }
 
     get amountOfItemsInCart(): number {
@@ -34,6 +33,6 @@ export class Cart {
     }
 
     checkById(itemId: string): boolean {
-        return this.cartList.some(item => item.id === itemId);
+        return this.cartList.some(item => item.id == itemId);
     }
 }

@@ -1,16 +1,16 @@
-import { IBuyer, TPayment} from '../../../types/index.ts';
+import { IBuyer, TPayment, TError} from '../../types/index.ts';
 
 export class Buyer{
-    protected payment: TPayment;
-    protected email: string;
-    protected phone: string;
-    protected address: string;
+    private payment: TPayment;
+    private email: string;
+    private phone: string;
+    private address: string;
 
-    constructor({payment, email, phone, address}: IBuyer) {
-        this.payment = payment;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
+    constructor() {
+        this.payment = '';
+        this.email = '';
+        this.phone = '';
+        this.address = '';
     }
 
     set paymentMethod(method: TPayment){
@@ -45,8 +45,8 @@ export class Buyer{
         this.address = '';
     }
 
-    isValid(): Record<string, string> {
-        const errors: Record<string, string> = {};
+    isValid(): TError {
+        const errors: TError = {};
 
         if (!this.payment) {
             errors.payment = 'Не выбран способ оплаты';
