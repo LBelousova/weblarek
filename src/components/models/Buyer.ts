@@ -1,66 +1,61 @@
 import { IBuyer, TPayment, TError} from '../../types/index.ts';
+import { IEvents } from '../base/Events';
+
 
 export class Buyer{
-    private payment: TPayment;
-    private email: string;
-    private phone: string;
-    private address: string;
+  private payment: TPayment = '';
+  private email: string = '';
+  private phone: string = '';
+  private address: string = '';
 
-    constructor() {
-        this.payment = '';
-        this.email = '';
-        this.phone = '';
-        this.address = '';
+  constructor(protected event: IEvents) {}
+
+  set paymentMethod(value: TPayment){
+    this.payment = value;
+    this.isValid();
+  }
+
+  set inputInfo(data: {field: keyof Buyer, value: string} ) {
+    this[data.field] = data.value;
+    this.isValid();
+  }
+
+  get buyerInfo(): IBuyer {
+    return {
+      payment: this.payment,
+      email: this.email,
+      phone: this.phone,
+      address: this.address
+    };
+  }
+
+  clearBuyerInfo(): void {
+    this.payment = '';
+    this.email = '';
+    this.phone = '';
+    this.address = '';
+
+    this.event.emit('form:cleared');
+  }
+
+  protected isValid(): TError {
+    const errors: TError = {};
+
+    if (!this.payment) {
+      errors.payment = 'Не выбран способ оплаты';
     }
-
-    set paymentMethod(method: TPayment){
-        this.payment = method;
+    if (!this.email) {
+      errors.email = 'Укажите email';
     }
-
-    set emailInfo(email: string){
-        this.email = email;
+    if (!this.phone) {
+      errors.phone = 'Укажите телефон';
     }
-
-    set phoneInfo(phone: string) {
-        this.phone = phone;
+    if (!this.address) {
+      errors.address = 'Укажите адрес';
     }
+    this.event.emit('form-errors:validation', errors);
 
-    set addressInfo(address: string) {
-        this.address = address;
-    }
-
-    get buyerInfo(): IBuyer {
-        return {
-            payment: this.payment,
-            email: this.email,
-            phone: this.phone,
-            address: this.address
-        };
-    }
-
-    clearBuyerInfo(): void {
-        this.payment = '';
-        this.email = '';
-        this.phone = '';
-        this.address = '';
-    }
-
-    isValid(): TError {
-        const errors: TError = {};
-
-        if (!this.payment) {
-            errors.payment = 'Не выбран способ оплаты';
-        }
-        if (!this.email) {
-            errors.email = 'Укажите email';
-        }
-        if (!this.phone) {
-            errors.phone = 'Укажите телефон';
-        }
-        if (!this.address) {
-            errors.address = 'Укажите адрес';
-        }
-        return errors;
-    }
+    return errors;
+  }
 }
 

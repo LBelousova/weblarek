@@ -1,13 +1,17 @@
 import { IApi, IProductsResponse, IOrderRequest, IOrderResponse} from "../../types/index.ts";
+import { Api } from "../base/Api.ts";
 
-export class ServerRequests {
-  constructor(protected api : IApi) {}
+export class ServerRequests extends Api implements IApi {
+
+  constructor(baseUrl: string, options?: RequestInit) {
+    super(baseUrl, options)
+  }
 
   getProducts(): Promise<IProductsResponse> {
-    return this.api.get<IProductsResponse>('/product/');
+    return this.get<IProductsResponse>('/product/');
   }
 
   createOrder(order: IOrderRequest): Promise<IOrderResponse> {
-    return this.api.post<IOrderResponse>('/order/', order);
+    return this.post<IOrderResponse>('/order/', order);
   }
 }

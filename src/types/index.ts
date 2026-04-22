@@ -39,3 +39,7 @@ export interface IOrderResponse {
    id: string;
    total: number;
 }
+
+export interface ICardActions {
+    onClick: (event: MouseEvent) => void;
+}
