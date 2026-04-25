@@ -1,11 +1,11 @@
 import { Card } from '../Card/Card';
-import { ICardActions} from '../../../types/index.ts';
+import { ICardActions, IProduct} from '../../../types/index.ts';
 import { ensureElement } from '../../../utils/utils';
 import { categoryMap, CDN_URL } from '../../../utils/constants';
 
 type CategoryKey = keyof typeof categoryMap;
 
-export class CardCatalog extends Card {
+export class CardCatalog extends Card<Partial<IProduct>> {
   protected imageElement: HTMLImageElement;
   protected categoryElement: HTMLElement;
 

@@ -1,16 +1,16 @@
 import { Form } from './Form';
 import { ensureElement } from '../../../utils/utils';
 import { IEvents } from '../../base/Events';
-import { IBuyer } from '../../../types';
 import { IForm } from './Form';
+import { ICardActions } from '../../../types';
 
-interface IFormContacts extends IForm, Partial<IBuyer> {
+interface IFormContacts extends IForm {
   email: string;
   phone: string;
 }
 
-export class FormContacts extends Form implements IFormContacts {
-  constructor(container: HTMLElement, protected events: IEvents) {
+export class FormContacts extends Form<IFormContacts> {
+  constructor(container: HTMLElement, protected events: IEvents, actions?: ICardActions) {
     super(container);
 
     this.inputElements.forEach(input => {
@@ -18,14 +18,12 @@ export class FormContacts extends Form implements IFormContacts {
         const field = (event.target as HTMLInputElement).name;
         const value = (event.target as HTMLInputElement).value;
 
-        this.events.emit('input:changed', { field, value });
+        this.events.emit('buyerInfo:selected', { field, value });
       })
     });
-
-    this.submitButton.addEventListener('click', (event: Event) => {
-      event.preventDefault();
-      this.events.emit('form:submit');
-    })
+    if(actions?.onClick) {
+      this.submitButton.addEventListener('click', actions.onClick);
+    };
   }
 
   set email(value: string) {
@@ -34,12 +32,5 @@ export class FormContacts extends Form implements IFormContacts {
 
   set phone(value: string) {
     ensureElement<HTMLInputElement>('input[name="phone"]', this.container).value = value;
-  }
-
-  render(data?: IFormContacts | undefined): HTMLElement {
-    data?.errors !== undefined && (this.errors = data.errors);
-    data?.email !== undefined && (this.email = data.email);
-    data?.phone !== undefined && (this.phone = data.phone);
-    return super.render(data);
   }
 }

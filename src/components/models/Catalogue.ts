@@ -25,7 +25,7 @@ export class Catalogue {
 
   set product (prod: IProduct) {
     this.item = prod;
-    this.event.emit('product:preview', this.item);
+    this.event.emit('product:preview');
   }
 
   getProductById(id: string) : IProduct | null {

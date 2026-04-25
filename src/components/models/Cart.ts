@@ -11,6 +11,7 @@ export class Cart {
   get itemsInCart(): IProduct[] {
     return this.cartList;
   }
+  
   get cartItemsIds(): string[] {
     return this.cartList.map(item => item.id);
   }

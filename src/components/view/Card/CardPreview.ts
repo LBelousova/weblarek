@@ -1,11 +1,12 @@
-import { ICardActions } from '../../../types/index.ts';
+import { ICardActions, IProduct } from '../../../types/index.ts';
 import { ensureElement } from '../../../utils/utils';
 import { Card } from './Card.ts';
 import { categoryMap, CDN_URL } from '../../../utils/constants';
 
+
 type CategoryKey = keyof typeof categoryMap;
 
-export class CardPreview extends Card {
+export class CardPreview extends Card<Partial<IProduct>> {
 
   protected cardButton: HTMLButtonElement;
   protected descriptionElement: HTMLElement;
@@ -46,14 +47,11 @@ export class CardPreview extends Card {
     }
   }
 
-  isInBasket(price: number | null, value: boolean,): void {
-    if(price === null) {
-      this.cardButton.textContent = 'Недоступно';
-      this.cardButton.disabled = true;
-    } else if((price != null) && value) {
-      this.cardButton.textContent = 'Удалить из корзины';
-    } else if((price != null) && !value) {
-      this.cardButton.textContent = 'Купить';
-    }
+  set buttonText(value: string) {
+    this.cardButton.textContent = value;
+  }
+
+  set buttonDisabled(value: boolean) {
+    this.cardButton.disabled = value;
   }
 }

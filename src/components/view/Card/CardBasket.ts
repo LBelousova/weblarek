@@ -6,7 +6,7 @@ interface ICardBasket extends Partial<IProduct> {
   index: number;
 }
 
-export class CardBasket extends Card {
+export class CardBasket extends Card<ICardBasket> {
   protected indexElement: HTMLElement;
   protected deleteButton: HTMLButtonElement;
 
@@ -23,10 +23,5 @@ export class CardBasket extends Card {
 
   set index(value: number) {
     this.indexElement.textContent = String(value);
-  }
-
-  render(data?: ICardBasket | undefined): HTMLElement {
-    
-    return super.render(data);
   }
 }

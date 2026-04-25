@@ -17,6 +17,7 @@ export class Modal extends Component<IModal> {
     this.closeButton = ensureElement<HTMLButtonElement>('.modal__close', this.container);
     
     this.closeButton.addEventListener('click', () => this.close());
+    container.addEventListener('click', (event: MouseEvent) => this.outsideClick(event));
     }
 
 
@@ -32,7 +33,6 @@ export class Modal extends Component<IModal> {
 
   open(state: boolean = true) {
     this.container.classList.toggle('modal_active', state);
-    document.addEventListener('click', (event: MouseEvent) => this.outsideClick(event));
   }
 
   close() {

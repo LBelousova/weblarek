@@ -1,6 +1,6 @@
+import { ICardActions } from '../../types';
 import { ensureElement } from '../../utils/utils';
 import { Component } from '../base/Component';
-import { IEvents } from '../base/Events';
 
 interface IBasket {
   list: HTMLElement[] | null;
@@ -12,36 +12,28 @@ export class Basket extends Component<IBasket> {
   protected basketPrice: HTMLElement;
   protected basketButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, protected events: IEvents) {
+  constructor(container: HTMLElement, actions?: ICardActions) {
     super(container);
 
     this.basketList = ensureElement<HTMLElement>('.basket__list', this.container);
     this.basketPrice = ensureElement<HTMLElement>('.basket__price', this.container);
     this.basketButton = ensureElement<HTMLButtonElement>('.basket__button', this.container);
-
-    this.basketButton.addEventListener('click', () => {
-      this.events.emit('form-order:open');
-    })
-  }
-
-  protected buttonState(state: boolean) {
-    this.basketButton.disabled = state;
+    if(actions?.onClick) {
+      this.basketButton.addEventListener('click', actions.onClick);
+    }
   }
 
   set list(content: HTMLElement[]) {
-    if(!content.length) {
-      this.buttonState(true);
-      this.basketList.replaceChildren();
-    } else {
-      this.buttonState(false);
-      this.basketList.replaceChildren();
-      content.forEach(item => {
-        this.basketList.appendChild(item);
-      })
-    };
+    this.basketList.replaceChildren(...content);
+    this.basketButton.disabled = !content.length;
   }
 
   set price(value: number) {
     this.basketPrice.textContent = `${value} синапсов`;
+  }
+
+  render(data?: Partial<IBasket>): HTMLElement {
+    this.basketButton.disabled = !this.basketList.children.length;
+    return super.render(data);
   }
 }

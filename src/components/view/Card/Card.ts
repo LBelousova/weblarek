@@ -2,7 +2,7 @@ import { ensureElement } from '../../../utils/utils';
 import { Component } from '../../base/Component';
 import { IProduct } from '../../../types';
 
-export class Card extends Component<IProduct> implements Partial<IProduct> {
+export class Card<T> extends Component<IProduct&T> {
   protected titleElement: HTMLElement;
   protected priceElement: HTMLElement;
 

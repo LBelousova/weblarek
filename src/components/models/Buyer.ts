@@ -10,14 +10,23 @@ export class Buyer{
 
   constructor(protected event: IEvents) {}
 
-  set paymentMethod(value: TPayment){
-    this.payment = value;
-    this.isValid();
-  }
-
-  set inputInfo(data: {field: keyof Buyer, value: string} ) {
-    this[data.field] = data.value;
-    this.isValid();
+  set buyerInfo(data: {field: string, value: string | TPayment}) {
+    switch (data.field) {
+      case 'payment':
+        this.payment = data.value as TPayment;
+        this.event.emit('payment:changed');
+        break;
+      case 'address':
+        this.address = data.value as string;
+        break;
+      case 'email':
+        this.email = data.value as string;
+        break;
+      case 'phone':
+        this.phone = data.value as string;
+        break;
+    }
+    this.event.emit('buyerInfo:changed', { field: data.field, value: data.value });
   }
 
   get buyerInfo(): IBuyer {
@@ -35,10 +44,10 @@ export class Buyer{
     this.phone = '';
     this.address = '';
 
-    this.event.emit('form:cleared');
+    this.event.emit('buyerInfo:changed');
   }
 
-  protected isValid(): TError {
+  isValid(): TError {
     const errors: TError = {};
 
     if (!this.payment) {
@@ -53,7 +62,6 @@ export class Buyer{
     if (!this.address) {
       errors.address = 'Укажите адрес';
     }
-    this.event.emit('form-errors:validation', errors);
 
     return errors;
   }
