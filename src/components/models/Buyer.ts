@@ -14,7 +14,6 @@ export class Buyer{
     switch (data.field) {
       case 'payment':
         this.payment = data.value as TPayment;
-        this.event.emit('payment:changed');
         break;
       case 'address':
         this.address = data.value as string;
@@ -26,7 +25,7 @@ export class Buyer{
         this.phone = data.value as string;
         break;
     }
-    this.event.emit('buyerInfo:changed', { field: data.field, value: data.value });
+    this.event.emit('buyerInfo:changed');
   }
 
   get buyerInfo(): IBuyer {

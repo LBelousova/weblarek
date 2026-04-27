@@ -55,22 +55,9 @@ const formContactsView = new FormContacts(cloneTemplate(formContactsElement), ev
     } 
   });
 const cardPreviewView = new CardPreview(cloneTemplate(cardPreviewElement), 
-  { onClick: () => {
-      const product = catalogueModel.product;
-      if (!product) return;
-      if (cartModel.checkById(product.id)) {
-        events.emit('basket:delete-product', product);
-        modalView.close();
-      } else {
-        events.emit('basket:add-product', product);
-        modalView.close();
-      }
-    }});
+  { onClick: () => events.emit('cardPreviewButton:pushed') });
 const orderSuccessView = new OrderSuccess(cloneTemplate(orderSuccessElement), 
-  { onClick: () => {
-      modalView.close();
-    }
-  });
+  { onClick: () => modalView.close() });
 
 events.on('catalogue:changed', () => {
   const gallary = catalogueModel.products.map(product => {
@@ -117,6 +104,23 @@ events.on('product:preview', () => {
   modalView.open();
 });
 
+events.on('cardPreviewButton:pushed', () => {
+  const product = catalogueModel.product;
+  if (!product) return;
+
+  if (cartModel.checkById(product.id)) {
+    cartModel.removeItemFromCart(product);
+    modalView.close();
+  } else {
+    cartModel.addItemToCart(product);
+    modalView.close();
+  }
+});
+
+events.on('basket:delete-product', (product: IProduct) => {
+  cartModel.removeItemFromCart(product)
+})
+
 events.on('cart:changed', () => {
   headerView.render({
     counter: String(cartModel.amountOfItemsInCart())
@@ -148,19 +152,16 @@ events.on('basket:open', () => {
   modalView.open();
 })
 
-events.on('basket:delete-product', (product: IProduct) => {
-  cartModel.removeItemFromCart(product)
-})
-
-events.on('basket:add-product', (product: IProduct) => {
-  cartModel.addItemToCart(product)
-})
-
 events.on('form-order:open', () => {
+
+  const errors = buyerModel.isValid();
+  const orderErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'payment' || key === 'address'));
+
   modalView.render({
     content: formOrderView.render({
       address: buyerModel.buyerInfo.address,
       payment: buyerModel.buyerInfo.payment,
+      valid: Object.keys(orderErrors).length === 0,
     })
   })
 })
@@ -169,46 +170,41 @@ events.on('buyerInfo:selected', (data: { field: string, value: string | TPayment
   buyerModel.buyerInfo = data;
 });
 
-events.on('payment:changed', () => {
-  const activeButton = formOrderElement.querySelector('.button_alt-active');
-  activeButton?.classList.toggle('button_alt-active', false);
-  formOrderView.payment = buyerModel.buyerInfo.payment;
-});
-
 events.on('buyerInfo:changed', () => {
   const errors = buyerModel.isValid();
   const orderErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'payment' || key === 'address'));
   const contactErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'email' || key === 'phone'));
 
-  if (Object.keys(orderErrors).length === 0) {
-    formOrderView.valid = true;
-    formOrderView.errors = '';
-  } else {
-    formOrderView.render({
-    valid: false,
+  formOrderView.render({
+    valid: Object.keys(orderErrors).length === 0,
     errors: Object.values(orderErrors).join(', '),
     address: buyerModel.buyerInfo.address,
     payment: buyerModel.buyerInfo.payment
-  })}
+  })
 
-  if (Object.keys(contactErrors).length === 0) {
-    formContactsView.valid = true;
-    formContactsView.errors = '';
-  } else {
-    formContactsView.render({
-    valid: false,
+  formContactsView.render({
+    valid: Object.keys(contactErrors).length === 0,
     errors: Object.values(contactErrors).join(', '),
     email: buyerModel.buyerInfo.email,
     phone: buyerModel.buyerInfo.phone
-  })}
+  })
 
+  if(!buyerModel.buyerInfo.email && !buyerModel.buyerInfo.phone) {
+    formContactsView.render({
+      errors: ''
+    });
+  }
 });
 
 events.on('form-contact:open', () => {
+  const errors = buyerModel.isValid();
+  const contactErrors = Object.fromEntries(Object.entries(errors).filter(([key]) => key === 'email' || key === 'phone'));
+
   modalView.render({
     content: formContactsView.render({
       email: buyerModel.buyerInfo.email,
       phone: buyerModel.buyerInfo.phone,
+      valid: Object.keys(contactErrors).length === 0,
     })
   })
 })
